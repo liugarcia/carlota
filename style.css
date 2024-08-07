@@ -1,0 +1,272 @@
+body {
+    font-family: Helvetica, sans-serif;
+    background-color: #ECE5DD; /* Cor de fundo principal */
+    background-size: cover;
+    background-position: center;
+    margin: 0;
+    padding: 0;
+    color: #fff;
+    width: 100%;
+    height: 100vh; /* Garante que o body ocupe a altura total da viewport */
+    display: flex;
+    flex-direction: column;
+}
+
+
+
+
+
+
+
+
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Garante que os itens dentro da navbar estejam em posições opostas */
+    position: fixed;
+    top: 0; /* Posiciona no topo da tela */
+    left: 0; /* Posiciona na parte esquerda da tela */
+    width: 100%; /* Ajusta a largura para a tela inteira */
+    background-color: white;
+    color: white;
+    padding: 10px;
+  height: 50px;
+    z-index: 1000; /* Garante que a navbar fique sobre outros conteúdos */
+}
+
+.navbar a {
+    color: black;
+    text-decoration: none;
+    padding: 14px 20px;
+    display: inline-block;
+}
+
+.navbar a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+
+
+
+
+
+
+
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+#feed {
+    flex: 1; /* Faz com que o feed ocupe o espaço disponível */
+    background: #ECE5DD; /* Cor de fundo */
+    border-radius: 10px; /* Bordas arredondadas */
+    margin: 15px 0; /* Margem superior e inferior */
+    padding: 0 0 80px 0; /* Remove a margem lateral e ajusta o padding para o rodapé */
+    width: 70%; /* Largura total do container pai */
+   
+}
+
+.feed-item {
+    background: #fff;
+    color: #000;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    max-width: 70%;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    word-wrap: break-word;
+    position: relative; /* Necessário para a seta aparecer corretamente */
+}
+
+.right {
+    margin-left: auto;
+    text-align: right;
+    background-color: #d1ffd1; /* Cor de fundo diferente para mensagens enviadas pelo usuário */
+    position: relative;
+    border-radius: 8px; /* Bordas arredondadas */
+}
+
+.right:before {
+    content: "";
+    position: absolute;
+    border-width: 10px;
+    border-style: solid;
+    border-color: transparent transparent transparent #d1ffd1; /* Seta apontando para a direita */
+    top: 5px;
+    right: -18px; /* Ajuste a posição da seta */
+}
+
+.left {
+    margin-right: auto;
+    text-align: left;
+    background-color: #fff; /* Cor de fundo diferente para mensagens recebidas */
+    position: relative;
+    border-radius: 8px; /* Bordas arredondadas */
+}
+
+.left:before {
+    content: "";
+    position: absolute;
+    border-width: 10px;
+    border-style: solid;
+    border-color: transparent #fff transparent transparent; /* Seta apontando para a esquerda */
+    top: 5px;
+    left: -18px; /* Ajuste a posição da seta */
+}
+
+
+
+
+
+
+#connect, #disconnect {
+    margin: 20px;
+    padding: 5px 10px;
+    border: none;
+    color: #fff;
+    background-color: green;
+    cursor: pointer;
+    border-radius: 50px; /* Ajuste o valor conforme necessário para obter o arredondamento desejado */
+}
+
+#disconnect {
+    display: none;
+}
+
+
+
+
+
+
+
+
+#status-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Garante que o status e o botão estejam em posições opostas */
+    position: fixed;
+    bottom: 0; /* Posiciona na parte inferior da tela */
+    left: 0; /* Posiciona na parte esquerda da tela */
+    width: 100%; /* Ajusta a largura para a tela inteira */
+    background: #ECE5DD; /* Cor de fundo do rodapé se necessário */
+    padding: 10px;
+    box-sizing: border-box; /* Inclui padding e bordas nas dimensões */
+    height: 80px; /* Altura fixa do rodapé */
+}
+
+#status {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    resize: vertical; /* Permite redimensionamento vertical */
+    background: white; /* Cor de fundo se necessário */
+    flex: 1; /* Ocupa o espaço restante disponível */
+}
+
+#publish {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background-color: #28a745;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 50%; /* Arredonda o botão em um círculo */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#publish i {
+    font-size: 16px;
+}
+
+#account {
+    margin: 10px;
+  color: green;
+    font-size: 2px; /* Ajuste o tamanho da fonte conforme necessário */
+}
+
+/* Media queries para tornar o layout responsivo */
+@media (max-width: 768px) {
+    #feed {
+        flex: 1; /* Faz com que o feed ocupe o espaço disponível */
+        background: #ECE5DD; /* Cor de fundo */
+        border-radius: 10px; /* Bordas arredondadas */
+        margin: 15px 0; /* Margem superior e inferior */
+        width: 90%; /* Largura total do container pai */
+
+        padding-bottom: 80px; /* Espaço para o rodapé */
+    }
+
+    .feed-item {
+        max-width: 90%;
+    }
+
+    #status {
+        width: calc(100% - 60px); /* Ajusta a largura do status para considerar a largura do botão */
+    }
+}
+
+@media (max-width: 480px) {
+    #feed {
+        flex: 1; /* Faz com que o feed ocupe o espaço disponível */
+        background: #ECE5DD; /* Cor de fundo */
+        border-radius: 10px; /* Bordas arredondadas */
+        margin: 15px 0; /* Margem superior e inferior */
+          width: 90%; /* Largura total do container pai */
+      
+        padding-bottom: 80px; /* Espaço para o rodapé */
+    }
+
+    .feed-item {
+        max-width: 85%;
+    }
+
+    #status {
+        width: calc(100% - 60px); /* Ajusta a largura do status para considerar a largura do botão */
+    }
+}
+
+.feed-item b {
+    font-size: 10px; /* Altere para o tamanho desejado */
+    color: grey;
+}
+
+.feed-item.left b {
+    color: #31B404; /* Cor azul para o endereço */
+}
+
+
+.timestamp {
+    font-size: 10px; /* Ajuste o tamanho conforme necessário */
+    color: gray; 
+
+
+
+
+
+
+
+
+  
+
+ 
+
+
+
+
+
+
+
+
+
+#emoji-button {
+    padding: 10px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 20px;
+}
