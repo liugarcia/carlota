@@ -1,89 +1,4 @@
- import { createWeb3Modal, defaultWagmiConfig } from "https://esm.sh/@web3modal/wagmi@5.0.11/?bundle";
-        import { bscTestnet } from "https://esm.sh/@wagmi/core@2.13.1/chains?exports=bscTestnet";
-
-        const projectId = "ea82e406480d9d8f524c7fe5c20cd367"; // Substitua por seu verdadeiro projectId
-
-        const metadata = {
-            name: "carlota",
-            description: "",
-            url: "", // origin must match your domain & subdomain
-            icons: ["https://avatars.githubusercontent.com/u/37784886"],
-        };
-
-        const chains = [bscTestnet];
-
-        const config = defaultWagmiConfig({
-            chains,
-            projectId,
-            metadata,
-        });
-
-        const modal = createWeb3Modal({
-            wagmiConfig: config,
-            projectId,
-        });
-
-        modal.subscribeEvents((newState) => {
-            if (newState.data && newState.data.event) {
-                console.log("events", newState.data.event);
-            }
-            if (newState.data.event === 'openModal') {
-                console.log("Modal aberto:", newState);
-            }
-        });
-
-        function isMobileDevice() {
-            return /Mobi|Android/i.test(navigator.userAgent);
-        }
-
-        function openWalletApp(walletName) {
-            const urls = {
-                MetaMask: 'https://metamask.app.link',
-                TrustWallet: 'https://trustwallet.com',
-                Coinbase: 'https://wallet.coinbase.com',
-            };
-
-            const url = urls[walletName];
-            if (url) {
-                window.open(url, '_blank');
-            } else {
-                console.error(`URL para o aplicativo ${walletName} não encontrada.`);
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', (event) => {
-            const button = document.querySelector('w3m-button');
-            const publishButton = document.getElementById('publish');
-            const statusTextarea = document.getElementById('status');
-
-            if (button) {
-                button.classList.add('active');
-
-                if (isMobileDevice()) {
-                    console.log("Usuário em um dispositivo móvel.");
-                    // Tente abrir o aplicativo correspondente
-                    openWalletApp('MetaMask'); // Inicia com MetaMask
-                } else {
-                    console.log("Usuário em um navegador web.");
-                    // Adicione lógica específica para navegadores web aqui
-                }
-            } else {
-                console.error("Elemento 'w3m-button' não encontrado.");
-            }
-
-            if (publishButton && statusTextarea) {
-                publishButton.addEventListener('click', () => {
-                    const statusText = statusTextarea.value;
-                    console.log("Status publicado:", statusText);
-                    // Aqui você pode adicionar lógica para enviar a mensagem para a blockchain
-                });
-            } else {
-                console.error("Elemento 'publish' ou 'status' não encontrado.");
-            }
-        });
-    </script>
-    <script>
-        let web3;
+    let web3;
         let account;
         const contractAddress = '0x0dab011a9bf93cb45ad846dd9ca3e09261923aa3'; // Endereço do contrato fornecido
         const contractABI = [
@@ -209,17 +124,13 @@
                 try {
                     console.log('Publishing status:', status);
                     await contract.methods.publishStatus(status).send({ from: account });
-                    
-                    // Limpa a caixa de texto
-                    statusInput.value = '';
-
-                    // Recarregar as mensagens
-                    loadMessages();
+                    console.log('Status published to blockchain');
+                    statusInput.value = ''; // Limpar o campo de status após a publicação
                 } catch (error) {
                     console.error('Error publishing status:', error);
                 }
             } else {
-                alert('Please enter a status.');
+                alert('Status cannot be empty.');
             }
         }
 
