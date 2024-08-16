@@ -1,58 +1,36 @@
-    let web3;
-        let account;
-        const contractAddress = '0x0dab011a9bf93cb45ad846dd9ca3e09261923aa3'; // Endereço do contrato fornecido
-        const contractABI = [
-            {
-                "anonymous": false,
-                "inputs": [
-                    { "indexed": true, "internalType": "address", "name": "user", "type": "address" },
-                    { "indexed": false, "internalType": "string", "name": "text", "type": "string" },
-                    { "indexed": false, "internalType": "uint256", "name": "timestamp", "type": "uint256" }
-                ],
-                "name": "NewMessage",
-                "type": "event"
-            },
-            {
-                "inputs": [],
-                "name": "getMessages",
-                "outputs": [
-                    {
-                        "components": [
-                            { "internalType": "address", "name": "user", "type": "address" },
-                            { "internalType": "string", "name": "text", "type": "string" },
-                            { "internalType": "uint256", "name": "timestamp", "type": "uint256" }
-                        ],
-                        "internalType": "struct SocialDApp.Message[]",
-                        "name": "",
-                        "type": "tuple[]"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    { "internalType": "uint256", "name": "", "type": "uint256" }
-                ],
-                "name": "messages",
-                "outputs": [
-                    { "internalType": "address", "name": "user", "type": "address" },
-                    { "internalType": "string", "name": "text", "type": "string" },
-                    { "internalType": "uint256", "name": "timestamp", "type": "uint256" }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    { "internalType": "string", "name": "_text", "type": "string" }
-                ],
-                "name": "publishStatus",
-                "outputs": [],
-                "stateMutability": "nonpayable",
-                "type": "function"
+import { createWeb3Modal, defaultWagmiConfig } from "https://esm.sh/@web3modal/wagmi@5.0.11/?bundle";
+        import { bscTestnet } from "https://esm.sh/@wagmi/core@2.13.1/chains?exports=bscTestnet";
+
+        const projectId = "ea82e406480d9d8f524c7fe5c20cd367"; // Substitua por seu verdadeiro projectId
+
+        const metadata = {
+            name: "carlota",
+            description: "",
+            url: "", // origin must match your domain & subdomain
+            icons: ["https://avatars.githubusercontent.com/u/37784886"],
+        };
+
+        const chains = [bscTestnet];
+
+        const config = defaultWagmiConfig({
+            chains,
+            projectId,
+            metadata,
+        });
+
+        const modal = createWeb3Modal({
+            wagmiConfig: config,
+            projectId,
+        });
+
+        modal.subscribeEvents((newState) => {
+            if (newState.data && newState.data.event) {
+                console.log("events", newState.data.event);
             }
-        ];
+            if (newState.data.event === 'openModal') {
+                console.log("Modal aberto:", newState);
+            }
+        });
 
         async function loadWeb3() {
             if (window.ethereum) {
@@ -91,7 +69,6 @@
                     document.getElementById('account').innerText = `Connected Account: ${account}`;
                     document.getElementById('connect').style.display = 'none';
                     document.getElementById('disconnect').style.display = 'block';
-                    localStorage.setItem('account', account); // Salvar conta no localStorage
                     console.log('Connected account:', account);
                 } else {
                     console.log('No accounts found');
@@ -106,7 +83,6 @@
             document.getElementById('account').innerText = '';
             document.getElementById('connect').style.display = 'block';
             document.getElementById('disconnect').style.display = 'none';
-            localStorage.removeItem('account'); // Remover conta do localStorage
             console.log('Wallet disconnected');
         }
 
@@ -124,48 +100,57 @@
                 try {
                     console.log('Publishing status:', status);
                     await contract.methods.publishStatus(status).send({ from: account });
-                    console.log('Status published to blockchain');
-                    statusInput.value = ''; // Limpar o campo de status após a publicação
+                    
+                    // Limpa a caixa de texto
+                    statusInput.value = '';
+
+                    // Recarregar as mensagens
+                    loadMessages();
                 } catch (error) {
                     console.error('Error publishing status:', error);
                 }
             } else {
-                alert('Status cannot be empty.');
+                alert('Please enter a status.');
             }
         }
 
         async function loadMessages() {
             const contract = new web3.eth.Contract(contractABI, contractAddress);
             try {
+                console.log('Loading messages...');
                 const messages = await contract.methods.getMessages().call();
-                const feedElement = document.getElementById('feed');
-                feedElement.innerHTML = '';
-                for (const message of messages) {
-                    const messageElement = document.createElement('div');
-                    messageElement.classList.add('message');
-                    messageElement.innerHTML = `
-                        <p><strong>${message.user}</strong>: ${message.text}</p>
-                        <p><small>${new Date(message.timestamp * 1000).toLocaleString()}</small></p>
-                    `;
-                    feedElement.appendChild(messageElement);
-                }
+                
+                const feed = document.getElementById('feed');
+                feed.innerHTML = '';
+                messages.forEach(message => {
+                    const timestamp = Number(message.timestamp);
+                    const date = new Date(timestamp * 1000);
+                    const div = document.createElement('div');
+                    div.className = 'feed-item';
+                    if (message.user.toLowerCase() === account.toLowerCase()) {
+                        div.classList.add('right');
+                    } else {
+                        div.classList.add('left');
+                    }
+                    div.innerHTML = 
+                        `<b>${message.user}</b><br>
+                        <span>${message.text}</span><br>
+                        <small class="timestamp">${date.toLocaleString()}</small>`;
+                    feed.appendChild(div);
+                });
+
+                feed.scrollTop = feed.scrollHeight;
+
+                console.log('Messages loaded:', messages);
             } catch (error) {
                 console.error('Error loading messages:', error);
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            loadWeb3();
-            const savedAccount = localStorage.getItem('account');
-            if (savedAccount) {
-                account = savedAccount;
-                document.getElementById('account').innerText = `Connected Account: ${account}`;
-                document.getElementById('connect').style.display = 'none';
-                document.getElementById('disconnect').style.display = 'block';
-                console.log('Account restored from localStorage:', account);
-            }
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadWeb3();
+
             document.getElementById('connect').addEventListener('click', connectWallet);
             document.getElementById('disconnect').addEventListener('click', disconnectWallet);
             document.getElementById('publish').addEventListener('click', publishStatus);
-            loadMessages();
         });
