@@ -1,35 +1,46 @@
+import {
+  EthereumClient,
+  w3mConnectors,
+  w3mProvider,
+  WagmiCore,
+  WagmiCoreChains,
+  WagmiCoreConnectors,
+} from "https://unpkg.com/@web3modal/ethereum@2.7.1";
 
-// main.ts
+import { Web3Modal } from "https://unpkg.com/@web3modal/html@2.7.1";
 
-import { createWeb3Modal, defaultWagmiConfig } from '@web3modal/wagmi'
+// 0. Import wagmi dependencies
+const { mainnet, polygon, avalanche, arbitrum } = WagmiCoreChains;
+const { configureChains, createConfig } = WagmiCore;
 
-import { mainnet, arbitrum } from 'viem/chains'
-import { reconnect } from '@wagmi/core'
+// 1. Define chains
+const chains = [mainnet, polygon, avalanche, arbitrum];
+const projectId = "2aca272d18deb10ff748260da5f78bfd";
 
-// Your WalletConnect Cloud project ID
-export const projectId = 'ea82e406480d9d8f524c7fe5c20cd367'
+// 2. Configure wagmi client
+const { publicClient } = configureChains(chains, [w3mProvider({ projectId })]);
+const wagmiConfig = createConfig({
+  autoConnect: true,
+  connectors: [
+    ...w3mConnectors({ chains, version: 2, projectId }),
+    new WagmiCoreConnectors.CoinbaseWalletConnector({
+      chains,
+      options: {
+        appName: "html wagmi example",
+      },
+    }),
+  ],
+  publicClient,
+});
 
-// Create a metadata object
-const metadata = {
-  name: 'carlota',
-  description: 'AppKit Example',
-  url: 'https://web3modal.com', // origin must match your domain & subdomain
-  icons: ['https://avatars.githubusercontent.com/u/37784886']
-}
-
-// Create wagmiConfig
-const chains = [mainnet, arbitrum] as const
-export const config = defaultWagmiConfig({
-  chains,
-  projectId,
-  metadata,
-  ...wagmiOptions // Optional - Override createConfig parameters
-})
-reconnect(config)
-
-const modal = createWeb3Modal({
-  wagmiConfig: config,
-  projectId,
-  enableAnalytics: true, // Optional - defaults to your Cloud configuration
-  enableOnramp: true // Optional - false as default
-})
+// 3. Create ethereum and modal clients
+const ethereumClient = new EthereumClient(wagmiConfig, chains);
+export const web3Modal = new Web3Modal(
+  {
+    projectId,
+    walletImages: {
+      safe: "https://pbs.twimg.com/profile_images/1566773491764023297/IvmCdGnM_400x400.jpg",
+    },
+  },
+  ethereumClient
+);
