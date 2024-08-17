@@ -1,53 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web3 Modal Example</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/@web3modal/wagmi"</script>
-     
-</head>
-<body>
-
-
-<div id="ea82e406480d9d8f524c7fe5c20cd367">
-      <w3m-button></w3m-button>
-      <w3m-network-button> </w3m-network-button>
-    </div>
-
-<script>   import { BrowserProvider, Contract, formatUnits } from 'ethers'
-
-const USDTAddress = '0x617f3112bf5397D0467D315cC709EF968D9ba546'
-
-// The ERC-20 Contract ABI, which is a common contract interface
-// for tokens (this is the Human-Readable ABI format)
-const USDTAbi = [
-  'function name() view returns (string)',
-  'function symbol() view returns (string)',
-  'function balanceOf(address) view returns (uint)',
-  'function transfer(address to, uint amount)',
-  'event Transfer(address indexed from, address indexed to, uint amount)'
-]
-
-const walletProvider = modal.getWalletProvider()
-
-async function getBalance() {
-  if (!isConnected) throw Error('User disconnected')
-
-  const ethersProvider = new BrowserProvider(walletProvider)
-  const signer = await ethersProvider.getSigner()
-  // The Contract object
-  const USDTContract = new Contract(USDTAddress, USDTAbi, signer)
-  const USDTBalance = await USDTContract.balanceOf(address)
-
-  console.log(formatUnits(USDTBalance, 18))
-} </script>
-
-
-    
-<script type="module" src="script.js"></script>
-    
-    
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <w3m-core-button></w3m-core-button>
+    <script src="script.js" type="module"></script>
+  </body>
 </html>
