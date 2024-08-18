@@ -26,7 +26,6 @@
     <script type="module">
         import { createWeb3Modal, defaultWagmiConfig } from "https://esm.sh/@web3modal/wagmi@5.0.11/?bundle";
         import { bscTestnet } from "https://esm.sh/@wagmi/core@2.13.1/chains?exports=bscTestnet";
-        import { disconnect, reconnect } from "https://esm.sh/@wagmi/core@2.13.1?exports=disconnect,reconnect";
 
         const projectId = "ea82e406480d9d8f524c7fe5c20cd367"; // Substitua por seu verdadeiro projectId
 
@@ -44,18 +43,6 @@
             projectId,
             metadata,
         });
-
-        async function reconnectWithDelay() {
-            try {
-                await disconnect();
-                await new Promise(resolve => setTimeout(resolve, 1000)); // Aguarda 1 segundo
-                await reconnect(config);
-            } catch (error) {
-                console.error("Erro ao reconectar:", error);
-            }
-        }
-
-        reconnectWithDelay();
 
         const modal = createWeb3Modal({
             wagmiConfig: config,
