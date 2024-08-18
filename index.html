@@ -49,7 +49,7 @@
             try {
                 await disconnect();
                 await new Promise(resolve => setTimeout(resolve, 1000)); // Aguarda 1 segundo
-                await reconnect(config); // Adicionado await aqui
+                await reconnect(config);
             } catch (error) {
                 console.error("Erro ao reconectar:", error);
             }
@@ -100,11 +100,9 @@
 
                 if (isMobileDevice()) {
                     console.log("Usuário em um dispositivo móvel.");
-                    // Tente abrir o aplicativo correspondente
-                    openWalletApp('MetaMask'); // Inicia com MetaMask
+                    openWalletApp('MetaMask');
                 } else {
                     console.log("Usuário em um navegador web.");
-                    // Adicione lógica específica para navegadores web aqui
                 }
             } else {
                 console.error("Elemento 'w3m-button' não encontrado.");
@@ -114,7 +112,7 @@
                 publishButton.addEventListener('click', () => {
                     const statusText = statusTextarea.value;
                     console.log("Status publicado:", statusText);
-                    // Aqui você pode adicionar lógica para enviar a mensagem para a blockchain
+                    // Adicione lógica para enviar a mensagem para a blockchain aqui
                 });
             } else {
                 console.error("Elemento 'publish' ou 'status' não encontrado.");
@@ -126,7 +124,6 @@
             const connectButton = document.getElementById('connect');
             if (connectButton) {
                 connectButton.addEventListener('click', () => {
-                    // Lógica para conectar carteira aqui
                     console.log('Botão de conectar carteira clicado.');
                 });
             } else {
@@ -149,6 +146,5 @@
             }
         });
     </script>
-  
 </body>
 </html>
