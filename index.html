@@ -26,110 +26,119 @@
     <script type="module">
         import { createWeb3Modal, defaultWagmiConfig } from "https://esm.sh/@web3modal/wagmi@5.0.11/?bundle";
         import { bscTestnet } from "https://esm.sh/@wagmi/core@2.13.1/chains?exports=bscTestnet";
+        import { disconnect, reconnect } from "https://esm.sh/@wagmi/core@2.13.1?exports=disconnect,reconnect";
 
         const projectId = "ea82e406480d9d8f524c7fe5c20cd367"; // Substitua por seu verdadeiro projectId
-
         const metadata = {
             name: "carlota",
             description: "",
-            url: "", // origin must match your domain & subdomain
+            url: "",
             icons: ["https://avatars.githubusercontent.com/u/37784886"],
         };
 
         const chains = [bscTestnet];
-
         const config = defaultWagmiConfig({
             chains,
             projectId,
             metadata,
         });
 
-        const modal = createWeb3Modal({
-            wagmiConfig: config,
-            projectId,
-        });
-
-        modal.subscribeEvents((newState) => {
-            if (newState.data && newState.data.event) {
-                console.log("events", newState.data.event);
+        const contractAddress = '0x0dab011a9bf93cb45ad846dd9ca3e09261923aa3';
+        const contractABI = [
+            {
+                "anonymous": false,
+                "inputs": [
+                    { "indexed": true, "internalType": "address", "name": "user", "type": "address" },
+                    { "indexed": false, "internalType": "string", "name": "text", "type": "string" },
+                    { "indexed": false, "internalType": "uint256", "name": "timestamp", "type": "uint256" }
+                ],
+                "name": "NewMessage",
+                "type": "event"
+            },
+            {
+                "inputs": [],
+                "name": "getMessages",
+                "outputs": [
+                    {
+                        "components": [
+                            { "internalType": "address", "name": "user", "type": "address" },
+                            { "internalType": "string", "name": "text", "type": "string" },
+                            { "internalType": "uint256", "name": "timestamp", "type": "uint256" }
+                        ],
+                        "internalType": "struct SocialDApp.Message[]",
+                        "name": "",
+                        "type": "tuple[]"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    { "internalType": "uint256", "name": "", "type": "uint256" }
+                ],
+                "name": "messages",
+                "outputs": [
+                    { "internalType": "address", "name": "user", "type": "address" },
+                    { "internalType": "string", "name": "text", "type": "string" },
+                    { "internalType": "uint256", "name": "timestamp", "type": "uint256" }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    { "internalType": "string", "name": "_text", "type": "string" }
+                ],
+                "name": "publishStatus",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
             }
-            if (newState.data.event === 'openModal') {
-                console.log("Modal aberto:", newState);
-            }
-        });
+        ];
 
-        function isMobileDevice() {
-            return /Mobi|Android/i.test(navigator.userAgent);
-        }
-
-        function openWalletApp(walletName) {
-            const urls = {
-                MetaMask: 'https://metamask.app.link',
-                TrustWallet: 'https://trustwallet.com',
-                Coinbase: 'https://wallet.coinbase.com',
-            };
-
-            const url = urls[walletName];
-            if (url) {
-                window.open(url, '_blank');
-            } else {
-                console.error(`URL para o aplicativo ${walletName} não encontrada.`);
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', (event) => {
-            const button = document.querySelector('w3m-button');
-            const publishButton = document.getElementById('publish');
-            const statusTextarea = document.getElementById('status');
-
-            if (button) {
-                button.classList.add('active');
-
-                if (isMobileDevice()) {
-                    console.log("Usuário em um dispositivo móvel.");
-                    openWalletApp('MetaMask');
-                } else {
-                    console.log("Usuário em um navegador web.");
-                }
-            } else {
-                console.error("Elemento 'w3m-button' não encontrado.");
-            }
-
-            if (publishButton && statusTextarea) {
-                publishButton.addEventListener('click', () => {
-                    const statusText = statusTextarea.value;
-                    console.log("Status publicado:", statusText);
-                    // Adicione lógica para enviar a mensagem para a blockchain aqui
+        async function connectWallet() {
+            try {
+                const modal = createWeb3Modal({
+                    wagmiConfig: config,
+                    projectId,
                 });
-            } else {
-                console.error("Elemento 'publish' ou 'status' não encontrado.");
-            }
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const connectButton = document.getElementById('connect');
-            if (connectButton) {
-                connectButton.addEventListener('click', () => {
-                    console.log('Botão de conectar carteira clicado.');
-                });
-            } else {
-                console.error("Elemento 'connect' não encontrado.");
-            }
+                const instance = await modal.connect();
+                const web3 = new Web3(instance);
+                const contract = new web3.eth.Contract(contractABI, contractAddress);
 
-            const publishButton = document.getElementById('publish');
-            if (publishButton) {
-                publishButton.addEventListener('click', () => {
+                const accounts = await web3.eth.getAccounts();
+                document.getElementById('account').textContent = accounts[0];
+
+                document.getElementById('publish').addEventListener('click', async () => {
                     const statusText = document.getElementById('status').value;
                     if (statusText) {
-                        console.log("Status publicado:", statusText);
-                        // Adicione aqui a lógica para enviar a mensagem para a blockchain
+                        try {
+                            await contract.methods.publishStatus(statusText).send({ from: accounts[0] });
+                            console.log("Status publicado:", statusText);
+                        } catch (error) {
+                            console.error("Erro ao publicar status:", error);
+                        }
                     } else {
                         console.error("Nenhum texto encontrado na área de texto.");
                     }
                 });
+
+                contract.events.NewMessage().on('data', (event) => {
+                    console.log("Novo evento recebido:", event);
+                    // Adicione lógica para exibir a mensagem no feed
+                });
+            } catch (error) {
+                console.error("Erro ao conectar carteira:", error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const connectButton = document.getElementById('connect');
+            if (connectButton) {
+                connectButton.addEventListener('click', connectWallet);
             } else {
-                console.error("Elemento 'publish' não encontrado.");
+                console.error("Elemento 'connect' não encontrado.");
             }
         });
     </script>
