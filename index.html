@@ -3,7 +3,6 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web3 Modal Example</title>
-    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
 </head>
@@ -23,6 +22,7 @@
             </div>
         </center>
     </div>
+
     <script type="module">
         import { createWeb3Modal, defaultWagmiConfig } from "https://esm.sh/@web3modal/wagmi@5.0.11/?bundle";
         import { bscTestnet } from "https://esm.sh/@wagmi/core@2.13.1/chains?exports=bscTestnet";
@@ -39,29 +39,37 @@
 
         const chains = [bscTestnet];
 
+        // Configuração do Web3Modal com wagmi
         const config = defaultWagmiConfig({
             chains,
             projectId,
             metadata,
         });
 
+        // Função para desconectar e reconectar com delay
         async function reconnectWithDelay() {
             try {
-                await disconnect();
-                await new Promise(resolve => setTimeout(resolve, 1000)); // Aguarda 1 segundo
-                await reconnect(config);
+                const { wagmi } = modal.getProviderState();
+                
+                if (wagmi && wagmi.connector) {
+                    await disconnect(); // Desconecta qualquer sessão anterior
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // Aguarda 1 segundo
+                    await reconnect(config); // Tenta reconectar
+                } else {
+                    console.log("Nenhuma carteira conectada para reconectar.");
+                }
             } catch (error) {
                 console.error("Erro ao reconectar:", error);
             }
         }
 
-        reconnectWithDelay();
-
+        // Inicializa Web3Modal
         const modal = createWeb3Modal({
             wagmiConfig: config,
             projectId,
         });
 
+        // Assinatura de eventos do modal
         modal.subscribeEvents((newState) => {
             if (newState.data && newState.data.event) {
                 console.log("events", newState.data.event);
@@ -86,6 +94,7 @@
             }
         });
     </script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const connectButton = document.getElementById('connect');
